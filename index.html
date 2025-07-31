@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân loại CTG theo NICE 2022</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 1.1em;
+        }
+
+        .result-section {
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .result-normal {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .result-suspicious {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .result-abnormal {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .result-description {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .management-box {
+            background: rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .management-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+
+        .danger-signs {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(238, 90, 82, 0.3);
+        }
+
+        .danger-signs h3 {
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .danger-signs ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .danger-signs li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .danger-signs li:before {
+            content: "⚠️ ";
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .result-title {
+                font-size: 1.5em;
+            }
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Phân loại CTG</h1>
+            <p>Theo hướng dẫn NICE 2022 - Cardiotocography Classification</p>
+        </div>
+        
+        <div class="content">
+            <!-- Gò tử cung -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">1. Gò tử cung</div>
+                </div>
+                <div class="section-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="contraction_normal" data-category="contraction" data-level="normal">
+                            <label for="contraction_normal">< 5 cơn/10 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="contraction_suspicious" data-category="contraction" data-level="suspicious">
+                            <label for="contraction_suspicious">≥ 5 cơn/10 phút hoặc cơn có kéo dài ≥ 2 phút</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tim thai căn bản -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">2. Tim thai căn bản</div>
+                </div>
+                <div class="section-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="baseline_normal" data-category="baseline" data-level="normal">
+                            <label for="baseline_normal">110-160 bpm và ổn định, phù hợp tuổi thai</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="baseline_suspicious1" data-category="baseline" data-level="suspicious">
+                            <label for="baseline_suspicious1">Tăng ≥ 20 bpm từ đầu chuyển dạ hoặc trong vòng 1 giờ gần nhất</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="baseline_suspicious2" data-category="baseline" data-level="suspicious">
+                            <label for="baseline_suspicious2">100-109 bpm (trừ khi bình thường trước đó)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="baseline_suspicious3" data-category="baseline" data-level="suspicious">
+                            <label for="baseline_suspicious3">Không xác định được baseline</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="baseline_abnormal" data-category="baseline" data-level="abnormal">
+                            <label for="baseline_abnormal">< 100 bpm hoặc > 160 bpm</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dao động nội tại -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">3. Dao động nội tại (Variability)</div>
+                </div>
+                <div class="section-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_normal" data-category="variability" data-level="normal">
+                            <label for="variability_normal">5-25 bpm</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_suspicious1" data-category="variability" data-level="suspicious">
+                            <label for="variability_suspicious1">< 5 bpm trong 30-50 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_suspicious2" data-category="variability" data-level="suspicious">
+                            <label for="variability_suspicious2">> 25 bpm trong 10 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_abnormal1" data-category="variability" data-level="abnormal">
+                            <label for="variability_abnormal1">< 5 bpm > 50 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_abnormal2" data-category="variability" data-level="abnormal">
+                            <label for="variability_abnormal2">25 bpm > 10 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variability_abnormal3" data-category="variability" data-level="abnormal">
+                            <label for="variability_abnormal3">Hoặc xuất hiện dạng sin (sinusoidal)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nhịp giảm -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">4. Nhịp giảm (Decelerations)</div>
+                </div>
+                <div class="section-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_normal1" data-category="deceleration" data-level="normal">
+                            <label for="deceleration_normal1">Không có nhịp giảm hoặc có nhịp giảm sớm</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_normal2" data-category="deceleration" data-level="normal">
+                            <label for="deceleration_normal2">Nhịp giảm bất định không có dấu hiệu đáng ngại</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_suspicious1" data-category="deceleration" data-level="suspicious">
+                            <label for="deceleration_suspicious1">Nhịp giảm bất định lặp lại có đặc điểm đáng ngại < 30 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_suspicious2" data-category="deceleration" data-level="suspicious">
+                            <label for="deceleration_suspicious2">Nhịp giảm bất định giảm không lặp lại có đặc điểm đáng ngại > 30 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_suspicious3" data-category="deceleration" data-level="suspicious">
+                            <label for="deceleration_suspicious3">Nhịp giảm muộn lặp lại < 30 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_abnormal1" data-category="deceleration" data-level="abnormal">
+                            <label for="deceleration_abnormal1">Giảm bất định lặp lại có đặc điểm đáng ngại > 30 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_abnormal2" data-category="deceleration" data-level="abnormal">
+                            <label for="deceleration_abnormal2">Giảm muộn lặp lại ≥ 30 phút</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="deceleration_abnormal3" data-category="deceleration" data-level="abnormal">
+                            <label for="deceleration_abnormal3">Tim thai chậm cấp hoặc nhịp giảm kéo dài > 3 phút</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kết quả -->
+            <div id="result" class="result-section" style="display: none;">
+                <div id="result-title" class="result-title"></div>
+                <div id="result-description" class="result-description"></div>
+                <div class="management-box">
+                    <div class="management-title">Hướng xử trí:</div>
+                    <div id="management-text"></div>
+                </div>
+                <button class="reset-btn" onclick="resetForm()">🔄 Đánh giá lại</button>
+            </div>
+
+            <!-- Các đặc điểm đáng ngại -->
+            <div class="danger-signs">
+                <h3>📋 Các đặc điểm đáng ngại:</h3>
+                <ul>
+                    <li>kéo dài > 60 giây</li>
+                    <li>giảm dao động trong nhịp giảm</li>
+                    <li>trở về tim thai cơ bản chậm hoặc không trở về</li>
+                    <li>mất dạng vai (shouldering)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const resultDiv = document.getElementById('result');
+        const resultTitle = document.getElementById('result-title');
+        const resultDescription = document.getElementById('result-description');
+        const managementText = document.getElementById('management-text');
+
+        // Prevent multiple selections in same category
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    const category = this.dataset.category;
+                    const otherCheckboxes = document.querySelectorAll(`input[data-category="${category}"]`);
+                    otherCheckboxes.forEach(cb => {
+                        if (cb !== this) {
+                            cb.checked = false;
+                        }
+                    });
+                }
+                evaluateResult();
+            });
+        });
+
+        function evaluateResult() {
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            
+            if (checkedBoxes.length === 0) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            let hasAbnormal = false;
+            let hasSuspicious = false;
+            let categories = new Set();
+
+            checkedBoxes.forEach(checkbox => {
+                const level = checkbox.dataset.level;
+                const category = checkbox.dataset.category;
+                categories.add(category);
+                
+                if (level === 'abnormal') {
+                    hasAbnormal = true;
+                } else if (level === 'suspicious') {
+                    hasSuspicious = true;
+                }
+            });
+
+            // Determine result
+            let resultClass, title, description, management;
+
+            if (hasAbnormal) {
+                resultClass = 'result-abnormal';
+                title = '🔴 BẤT THƯỜNG';
+                description = 'CTG có 1 đỏ hoặc ≥ 2 vàng: Đánh giá toàn diện, bao gồm cả mẹ, hỏi chẩn, hỏi sức, cần nhắc kích thích da đầu thai, loại trừ tai biến cấp và cần nhắc CDTK ngay';
+                management = 'CDTK NGAY - Cần can thiệp y tế khẩn cấp!';
+            } else if (hasSuspicious) {
+                resultClass = 'result-suspicious';
+                title = '🟡 NGHI NGỜ';
+                description = 'CTG có 1 tiêu chí vàng: Đánh giá toàn diện, bao gồm cả mẹ, hỏi chẩn nếu cần, can nhắc kích thích da đầu thai thúc đẩy chuyển dạ/CDTK.';
+                management = 'Tiếp tục theo dõi chặt chẽ - Cân nhắc can thiệp';
+            } else {
+                resultClass = 'result-normal';
+                title = '⚪ BÌNH THƯỜNG';
+                description = 'CTG có 4 tiêu chí đều trắng: Tiếp tục theo dõi thường quy';
+                management = 'Tiếp tục theo dõi bình thường';
+            }
+
+            // Show result
+            resultDiv.className = `result-section ${resultClass}`;
+            resultTitle.textContent = title;
+            resultDescription.textContent = description;
+            managementText.textContent = management;
+            resultDiv.style.display = 'block';
+
+            // Scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function resetForm() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            resultDiv.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
