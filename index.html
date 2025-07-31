@@ -294,7 +294,7 @@
             <!-- Dao động nội tại -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">3. Dao động nội tại (Variability)</div>
+                    <div class="section-title">3. Dao động nội tại</div>
                 </div>
                 <div class="section-body">
                     <div class="checkbox-group">
@@ -320,7 +320,7 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="variability_abnormal3" data-category="variability" data-level="abnormal">
-                            <label for="variability_abnormal3">Hoặc xuất hiện dạng sin (sinusoidal)</label>
+                            <label for="variability_abnormal3">Dạng hình sin (sinusoidal)</label>
                         </div>
                     </div>
                 </div>
@@ -329,7 +329,7 @@
             <!-- Nhịp giảm -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">4. Nhịp giảm (Decelerations)</div>
+                    <div class="section-title">4. Nhịp giảm</div>
                 </div>
                 <div class="section-body">
                     <div class="checkbox-group">
@@ -343,11 +343,11 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_suspicious1" data-category="deceleration" data-level="suspicious">
-                            <label for="deceleration_suspicious1">Nhịp giảm bất định lặp lại có đặc điểm đáng ngại < 30 phút</label>
+                            <label for="deceleration_suspicious1">Nhịp giảm bất định - lặp lại - có đặc điểm đáng ngại < 30 phút</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_suspicious2" data-category="deceleration" data-level="suspicious">
-                            <label for="deceleration_suspicious2">Nhịp giảm bất định giảm không lặp lại có đặc điểm đáng ngại > 30 phút</label>
+                            <label for="deceleration_suspicious2">Nhịp giảm bất định - không lặp lại - có đặc điểm đáng ngại > 30 phút</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_suspicious3" data-category="deceleration" data-level="suspicious">
@@ -355,7 +355,7 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_abnormal1" data-category="deceleration" data-level="abnormal">
-                            <label for="deceleration_abnormal1">Giảm bất định lặp lại có đặc điểm đáng ngại > 30 phút</label>
+                            <label for="deceleration_abnormal1">Giảm bất định - lặp lại - có đặc điểm đáng ngại > 30 phút</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_abnormal2" data-category="deceleration" data-level="abnormal">
@@ -363,7 +363,7 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="deceleration_abnormal3" data-category="deceleration" data-level="abnormal">
-                            <label for="deceleration_abnormal3">Tim thai chậm cấp hoặc nhịp giảm kéo dài > 3 phút</label>
+                            <label for="deceleration_abnormal3">Tim thai chậm cấp tính hoặc nhịp giảm kéo dài > 3 phút</label>
                         </div>
                     </div>
                 </div>
@@ -382,7 +382,7 @@
 
             <!-- Các đặc điểm đáng ngại -->
             <div class="danger-signs">
-                <h3>📋 Các đặc điểm đáng ngại:</h3>
+                <h3>📋 Các đặc điểm đáng ngại của nhịp giảm bất định</h3>
                 <ul>
                     <li>kéo dài > 60 giây</li>
                     <li>giảm dao động trong nhịp giảm</li>
@@ -446,18 +446,18 @@
             if (hasAbnormal) {
                 resultClass = 'result-abnormal';
                 title = '🔴 BẤT THƯỜNG';
-                description = 'CTG có 1 đỏ hoặc ≥ 2 vàng: Đánh giá toàn diện, bao gồm cả mẹ, hỏi chẩn, hỏi sức, cần nhắc kích thích da đầu thai, loại trừ tai biến cấp và cần nhắc CDTK ngay';
+                description = 'CTG có 1 đỏ hoặc ≥ 2 vàng: Đánh giá toàn diện, bao gồm cả mẹ, hội chẩn, hồi sức, cân nhắc kích thích da đầu thai, loại trừ tai biến cấp và cần nhắc CDTK ngay';
                 management = 'CDTK NGAY - Cần can thiệp y tế khẩn cấp!';
             } else if (hasSuspicious) {
                 resultClass = 'result-suspicious';
                 title = '🟡 NGHI NGỜ';
-                description = 'CTG có 1 tiêu chí vàng: Đánh giá toàn diện, bao gồm cả mẹ, hỏi chẩn nếu cần, can nhắc kích thích da đầu thai thúc đẩy chuyển dạ/CDTK.';
-                management = 'Tiếp tục theo dõi chặt chẽ - Cân nhắc can thiệp';
+                description = 'CTG có 1 tiêu chí vàng: Đánh giá toàn diện, bao gồm cả mẹ, hội chẩn nếu cần, cân nhắc kích thích da đầu thai thúc đẩy chuyển dạ/CDTK.';
+                management = 'Tiếp tục theo dõi sát - Cân nhắc can thiệp';
             } else {
                 resultClass = 'result-normal';
                 title = '⚪ BÌNH THƯỜNG';
                 description = 'CTG có 4 tiêu chí đều trắng: Tiếp tục theo dõi thường quy';
-                management = 'Tiếp tục theo dõi bình thường';
+                management = 'Tiếp tục theo dõi';
             }
 
             // Show result
@@ -467,8 +467,6 @@
             managementText.textContent = management;
             resultDiv.style.display = 'block';
 
-            // Scroll to result
-            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function resetForm() {
