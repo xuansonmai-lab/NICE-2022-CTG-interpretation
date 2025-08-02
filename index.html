@@ -183,11 +183,7 @@
             color: #721c24;
             border-color: #dc3545;
         }
-        .result-unclassified {
-             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-              color: #495057;
-              border-color: #6c757d;
-        }
+
         .result-title {
             font-size: 2em;
             margin-bottom: 15px;
@@ -685,7 +681,7 @@
 
             document.querySelectorAll('input[name="single_duration"]').forEach(radio => {
                 radio.addEventListener('change', function() {
-                    
+                    assessmentData.decelerations = this.value;
                     updateProgress();
                     evaluateResult();
                 });
@@ -753,11 +749,8 @@
 
             // Determine classification
             let resultClass, title, description;
-   if (isUnclassifiedCase()) {
-        resultClass = 'result-unclassified';
-        title = '⚫ UNCLASSIFIED';  
-        description = 'CTG requires expert assessment: Single variable decelerations with concerning features <30 minutes. Consider comprehensive maternal and fetal assessment.';
-    } else if (hasAbnormal || suspiciousCount >= 2) {
+
+            if (hasAbnormal || suspiciousCount >= 2) {
                 resultClass = 'result-abnormal';
                 title = '🔴 ABNORMAL';
                 description = 'CTG has 1 red feature OR ≥2 amber features: Comprehensive maternal and fetal assessment, consider fetal blood sampling, exclude acute events, immediate delivery should be considered';
@@ -770,15 +763,7 @@
                 title = '⚪ NORMAL';
                 description = 'CTG has all 4 white features: Continue routine surveillance';
             }
-function isUnclassifiedCase() {
-    // Kiểm tra: Variable decel + concerning features + single + <30 min
-    const variableSelected = document.querySelector('input[name="decel_type"]:checked')?.value === 'variable';
-    const hasFeatures = document.querySelector('input[name="variable_features"]:checked')?.value === 'concerning';
-    const isSingle = document.querySelector('input[name="decel_repetitive"]:checked')?.value === 'single';
-    const under30 = document.querySelector('input[name="single_duration"]:checked')?.value === 'normal';
-    
-    return variableSelected && hasFeatures && isSingle && under30;
-}
+
             // Show result
             const resultDiv = document.getElementById('result');
             const resultTitle = document.getElementById('result-title');
@@ -821,4 +806,3 @@ function isUnclassifiedCase() {
     </script>
 </body>
 </html>
-
