@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phân loại CTG theo NICE 2022</title>
+    <title>CTG Classification Tool - NICE 2022</title>
     <style>
         * {
             margin: 0;
@@ -81,39 +81,77 @@
             padding: 20px;
         }
 
-        .checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .question-group {
+            margin-bottom: 20px;
         }
 
-        .checkbox-item {
+        .question-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .radio-item {
             display: flex;
             align-items: center;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .checkbox-item:hover {
+        .radio-item:hover {
             background-color: #f8f9fa;
             border-color: #3498db;
         }
 
-        .checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 15px;
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
             cursor: pointer;
             accent-color: #3498db;
         }
 
-        .checkbox-item label {
+        .radio-item label {
             cursor: pointer;
             flex: 1;
-            font-size: 1.1em;
+            font-size: 1em;
+        }
+
+        .sub-question {
+            margin-left: 40px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .sub-question.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-section {
@@ -125,6 +163,7 @@
             font-weight: bold;
             transition: all 0.3s ease;
             border: 3px solid transparent;
+            display: none;
         }
 
         .result-normal {
@@ -157,63 +196,6 @@
             margin-bottom: 20px;
         }
 
-        .management-box {
-            background: rgba(255,255,255,0.3);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 2px solid rgba(255,255,255,0.5);
-        }
-
-        .management-title {
-            font-size: 1.3em;
-            margin-bottom: 10px;
-            text-decoration: underline;
-        }
-
-        .danger-signs {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            box-shadow: 0 5px 15px rgba(238, 90, 82, 0.3);
-        }
-
-        .danger-signs h3 {
-            margin-bottom: 15px;
-            font-size: 1.4em;
-        }
-
-        .danger-signs ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .danger-signs li {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .danger-signs li:before {
-            content: "⚠️ ";
-            margin-right: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .result-title {
-                font-size: 1.5em;
-            }
-        }
-
         .reset-btn {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
@@ -231,235 +213,562 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
         }
+
+        .progress-indicator {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .result-title {
+                font-size: 1.5em;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🩺 Phân loại CTG</h1>
-            <p>Theo hướng dẫn NICE 2022 - Cardiotocography Classification</p>
+            <h1>🩺 CTG Classification Tool</h1>
+           <p>According to <a href="https://www.nice.org.uk/guidance/ng229/chapter/Recommendations" target="_blank">NICE 2022 Guidelines</a> - Cardiotocography Classification</p>
+            <p style="margin-top: 15px; font-size: 1em; opacity: 0.95;">
+                Created by Dr. Mai Xuan Son to help healthcare professionals easily classify CTG without memorizing complex criteria or struggling with reference tables
+            </p>
         </div>
         
         <div class="content">
-            <!-- Gò tử cung -->
+            <div class="progress-indicator">
+                <div class="progress-text" id="progress-text">Complete all 4 categories to get classification result</div>
+            </div>
+
+            <!-- 1. Uterine Contractions -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">1. Gò tử cung</div>
+                    <div class="section-title">1. Uterine Contractions</div>
                 </div>
                 <div class="section-body">
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="contraction_normal" data-category="contraction" data-level="normal">
-                            <label for="contraction_normal">< 5 cơn/10 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="contraction_suspicious" data-category="contraction" data-level="suspicious">
-                            <label for="contraction_suspicious">≥ 5 cơn/10 phút hoặc cơn gò kéo dài ≥ 2 phút</label>
+                    <div class="question-group">
+                        <div class="question-title">Contraction frequency:</div>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="contraction_low" name="contractions" value="normal">
+                                <label for="contraction_low">< 5 contractions per 10 minutes</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="contraction_high" name="contractions" value="suspicious">
+                                <label for="contraction_high">≥ 5 contractions per 10 minutes OR contractions lasting ≥ 2 minutes</label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tim thai căn bản -->
+            <!-- 2. Baseline Fetal Heart Rate -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">2. Tim thai căn bản</div>
+                    <div class="section-title">2. Baseline Fetal Heart Rate</div>
                 </div>
                 <div class="section-body">
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_normal1" data-category="baseline" data-level="normal">
-                            <label for="baseline_normal1">110-160 bpm và ổn định, phù hợp tuổi thai</label>
+                    <div class="question-group">
+                        <div class="question-title">Baseline heart rate:</div>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="baseline_normal" name="baseline" value="normal">
+                                <label for="baseline_normal">110-160 bpm, stable and appropriate for gestational age</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="baseline_100_109" name="baseline" value="conditional">
+                                <label for="baseline_100_109">100-109 bpm</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="baseline_rise" name="baseline" value="suspicious">
+                                <label for="baseline_rise">Rise ≥ 20 bpm from start of labour or within 1 hour</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="baseline_unable" name="baseline" value="suspicious">
+                                <label for="baseline_unable">Unable to determine baseline</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="baseline_abnormal" name="baseline" value="abnormal">
+                                <label for="baseline_abnormal">< 100 bpm or > 160 bpm</label>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_normal2" data-category="baseline" data-level="normal">
-                            <label for="baseline_normal2">100-109 bpm (nếu không đổi so với trước chuyển dạ)</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_suspicious1" data-category="baseline" data-level="suspicious">
-                            <label for="baseline_suspicious1">Tăng ≥ 20 bpm từ đầu chuyển dạ hoặc trong vòng 1 giờ gần nhất</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_suspicious2" data-category="baseline" data-level="suspicious">
-                            <label for="baseline_suspicious2">100-109 bpm</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_suspicious3" data-category="baseline" data-level="suspicious">
-                            <label for="baseline_suspicious3">Không xác định được TTCB</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baseline_abnormal" data-category="baseline" data-level="abnormal">
-                            <label for="baseline_abnormal">< 100 bpm hoặc > 160 bpm</label>
+
+                        <div class="sub-question" id="baseline-sub">
+                            <div class="question-title">Was the baseline 100-109 bpm before labour started?</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="baseline_unchanged" name="baseline_history" value="normal">
+                                    <label for="baseline_unchanged">Yes (unchanged from before labour)</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="baseline_changed" name="baseline_history" value="suspicious">
+                                    <label for="baseline_changed">No (this is a new change)</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Dao động nội tại -->
+            <!-- 3. Baseline Variability -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">3. Dao động nội tại</div>
+                    <div class="section-title">3. Baseline Variability</div>
                 </div>
                 <div class="section-body">
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_normal" data-category="variability" data-level="normal">
-                            <label for="variability_normal">5-25 bpm</label>
+                    <div class="question-group">
+                        <div class="question-title">Variability range:</div>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="variability_normal" name="variability" value="normal">
+                                <label for="variability_normal">5-25 bpm</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="variability_low" name="variability" value="conditional_low">
+                                <label for="variability_low">< 5 bpm</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="variability_high" name="variability" value="conditional_high">
+                                <label for="variability_high">> 25 bpm</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="variability_sinusoidal" name="variability" value="abnormal">
+                                <label for="variability_sinusoidal">Sinusoidal pattern</label>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_suspicious1" data-category="variability" data-level="suspicious">
-                            <label for="variability_suspicious1">< 5 bpm trong 30-50 phút</label>
+
+                        <div class="sub-question" id="variability-low-sub">
+                            <div class="question-title">Duration of < 5 bpm variability:</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="var_low_30_50" name="variability_low_duration" value="suspicious">
+                                    <label for="var_low_30_50">30-50 minutes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="var_low_over_50" name="variability_low_duration" value="abnormal">
+                                    <label for="var_low_over_50">> 50 minutes</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_suspicious2" data-category="variability" data-level="suspicious">
-                            <label for="variability_suspicious2">> 25 bpm trong 10 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_abnormal1" data-category="variability" data-level="abnormal">
-                            <label for="variability_abnormal1">< 5 bpm > 50 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_abnormal2" data-category="variability" data-level="abnormal">
-                            <label for="variability_abnormal2">25 bpm > 10 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="variability_abnormal3" data-category="variability" data-level="abnormal">
-                            <label for="variability_abnormal3">Dạng sin</label>
+
+                        <div class="sub-question" id="variability-high-sub">
+                            <div class="question-title">Duration of > 25 bpm variability:</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="var_high_under_10" name="variability_high_duration" value="suspicious">
+                                    <label for="var_high_under_10">≤ 10 minutes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="var_high_over_10" name="variability_high_duration" value="abnormal">
+                                    <label for="var_high_over_10">> 10 minutes</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Nhịp giảm -->
+            <!-- 4. Decelerations -->
             <div class="section">
                 <div class="section-header">
-                    <div class="section-title">4. Nhịp giảm </div>
+                    <div class="section-title">4. Decelerations</div>
                 </div>
                 <div class="section-body">
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_normal1" data-category="deceleration" data-level="normal">
-                            <label for="deceleration_normal1">Không có nhịp giảm hoặc có nhịp giảm sớm</label>
+                    <div class="question-group">
+                        <div class="question-title">Are there any decelerations present?</div>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="decel_none" name="decelerations" value="normal">
+                                <label for="decel_none">No decelerations present</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="decel_present" name="decelerations" value="conditional">
+                                <label for="decel_present">Yes, decelerations are present</label>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_normal2" data-category="deceleration" data-level="normal">
-                            <label for="deceleration_normal2">Nhịp giảm bất định - không có đặc điểm đáng ngại</label>
+
+                        <div class="sub-question" id="decel-type-sub">
+                            <div class="question-title">Type of decelerations:</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_early" name="decel_type" value="normal">
+                                    <label for="decel_early">Early decelerations</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_variable" name="decel_type" value="variable">
+                                    <label for="decel_variable">Variable decelerations</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_late" name="decel_type" value="late">
+                                    <label for="decel_late">Late decelerations</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_prolonged" name="decel_type" value="abnormal">
+                                    <label for="decel_prolonged">Prolonged decelerations > 3 minutes or acute bradycardia</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_suspicious1" data-category="deceleration" data-level="suspicious">
-                            <label for="deceleration_suspicious1">Nhịp giảm bất định - có đặc điểm đáng ngại - lặp lại < 30 phút</label>
+
+                        <div class="sub-question" id="decel-variable-features-sub">
+                            <div class="question-title">Do the variable decelerations have concerning features?</div>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                                <em>Concerning features: Duration > 60 seconds, Reduced variability within deceleration, Slow return to baseline or failure to return, Loss of shouldering</em>
+                            </p>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="var_no_features" name="variable_features" value="normal">
+                                    <label for="var_no_features">No concerning features</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="var_has_features" name="variable_features" value="concerning">
+                                    <label for="var_has_features">Yes, has concerning features</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_suspicious2" data-category="deceleration" data-level="suspicious">
-                            <label for="deceleration_suspicious2">Nhịp giảm bất định - có đặc điểm đáng ngại - không lặp lại  > 30 phút</label>
+
+                        <div class="sub-question" id="decel-repetitive-sub">
+                            <div class="question-title">Are the decelerations repetitive?</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_not_repetitive" name="decel_repetitive" value="single">
+                                    <label for="decel_not_repetitive">No, single/non-repetitive</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_repetitive" name="decel_repetitive" value="repetitive">
+                                    <label for="decel_repetitive">Yes, repetitive</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_abnormal1" data-category="deceleration" data-level="abnormal">
-                            <label for="deceleration_abnormal1">Nhịp giảm bất định - có đặc điểm đáng ngại - lặp lại  > 30 phút</label>
+
+                        <div class="sub-question" id="decel-duration-sub">
+                            <div class="question-title">Duration of the concerning decelerations:</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_under_30" name="decel_duration" value="suspicious">
+                                    <label for="decel_under_30">< 30 minutes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="decel_over_30" name="decel_duration" value="abnormal">
+                                    <label for="decel_over_30">≥ 30 minutes</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_suspicious3" data-category="deceleration" data-level="suspicious">
-                            <label for="deceleration_suspicious3">Nhịp giảm muộn lặp lại < 30 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_abnormal2" data-category="deceleration" data-level="abnormal">
-                            <label for="deceleration_abnormal2">Nhịp giảm muộn lặp lại ≥ 30 phút</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="deceleration_abnormal3" data-category="deceleration" data-level="abnormal">
-                            <label for="deceleration_abnormal3">Tim thai chậm cấp tính hoặc nhịp giảm kéo dài > 3 phút</label>
+
+                        <div class="sub-question" id="decel-single-duration-sub">
+                            <div class="question-title">How long have these single variable decelerations with concerning features been present?</div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="single_under_30" name="single_duration" value="normal">
+                                    <label for="single_under_30">< 30 minutes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="single_over_30" name="single_duration" value="suspicious">
+                                    <label for="single_over_30">> 30 minutes</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Kết quả -->
-            <div id="result" class="result-section" style="display: none;">
+            <!-- Result -->
+            <div id="result" class="result-section">
                 <div id="result-title" class="result-title"></div>
                 <div id="result-description" class="result-description"></div>
-                <button class="reset-btn" onclick="resetForm()">🔄 Đánh giá lại</button>
-            </div>
-
-            <!-- Các đặc điểm đáng ngại -->
-            <div class="danger-signs">
-                <h3>📋 Đặc điểm của nhịp giảm bất định đáng ngại:</h3>
-                <ul>
-                    <li>kéo dài > 60 giây</li>
-                    <li>giảm dao động trong nhịp giảm</li>
-                    <li>trở về tim thai cơ bản chậm hoặc không trở về</li>
-                    <li>mất dạng vai (shouldering)</li>
-                </ul>
+                <button class="reset-btn" onclick="resetForm()">🔄 Reset Assessment</button>
             </div>
         </div>
     </div>
 
     <script>
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        const resultDiv = document.getElementById('result');
-        const resultTitle = document.getElementById('result-title');
-        const resultDescription = document.getElementById('result-description');
+        // State management
+        let assessmentData = {
+            contractions: null,
+            baseline: null,
+            variability: null,
+            decelerations: null
+        };
 
-        // Prevent multiple selections in same category
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    const category = this.dataset.category;
-                    const otherCheckboxes = document.querySelectorAll(`input[data-category="${category}"]`);
-                    otherCheckboxes.forEach(cb => {
-                        if (cb !== this) {
-                            cb.checked = false;
-                        }
-                    });
-                }
-                evaluateResult();
-            });
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
         });
 
-        function evaluateResult() {
-            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            const categories = new Set();
-            
-            checkedBoxes.forEach(checkbox => {
-                categories.add(checkbox.dataset.category);
+        function initializeEventListeners() {
+            // Contractions
+            document.querySelectorAll('input[name="contractions"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.contractions = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
             });
+
+            // Baseline - main question
+            document.querySelectorAll('input[name="baseline"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const subQuestion = document.getElementById('baseline-sub');
+                    if (this.value === 'conditional') {
+                        subQuestion.classList.add('show');
+                        assessmentData.baseline = null; // Reset until sub-question answered
+                    } else {
+                        subQuestion.classList.remove('show');
+                        assessmentData.baseline = this.value;
+                        // Reset sub-question
+                        document.querySelectorAll('input[name="baseline_history"]').forEach(r => r.checked = false);
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Baseline - sub question
+            document.querySelectorAll('input[name="baseline_history"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.baseline = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Variability - main question
+            document.querySelectorAll('input[name="variability"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const lowSub = document.getElementById('variability-low-sub');
+                    const highSub = document.getElementById('variability-high-sub');
+                    
+                    // Hide all sub-questions first
+                    lowSub.classList.remove('show');
+                    highSub.classList.remove('show');
+                    
+                    // Reset sub-question radios
+                    document.querySelectorAll('input[name="variability_low_duration"]').forEach(r => r.checked = false);
+                    document.querySelectorAll('input[name="variability_high_duration"]').forEach(r => r.checked = false);
+
+                    if (this.value === 'conditional_low') {
+                        lowSub.classList.add('show');
+                        assessmentData.variability = null;
+                    } else if (this.value === 'conditional_high') {
+                        highSub.classList.add('show');
+                        assessmentData.variability = null;
+                    } else {
+                        assessmentData.variability = this.value;
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Variability sub-questions
+            document.querySelectorAll('input[name="variability_low_duration"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.variability = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            document.querySelectorAll('input[name="variability_high_duration"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.variability = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Decelerations - main question
+            document.querySelectorAll('input[name="decelerations"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const subQuestion = document.getElementById('decel-type-sub');
+                    hideAllDecelSubQuestions();
+                    
+                    if (this.value === 'conditional') {
+                        subQuestion.classList.add('show');
+                        assessmentData.decelerations = null;
+                    } else {
+                        assessmentData.decelerations = this.value;
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Deceleration type
+            document.querySelectorAll('input[name="decel_type"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    hideDecelSubQuestions();
+                    
+                    if (this.value === 'variable') {
+                        document.getElementById('decel-variable-features-sub').classList.add('show');
+                        assessmentData.decelerations = null;
+                    } else if (this.value === 'late') {
+                        document.getElementById('decel-repetitive-sub').classList.add('show');
+                        assessmentData.decelerations = null;
+                    } else {
+                        assessmentData.decelerations = this.value;
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Variable deceleration features
+            document.querySelectorAll('input[name="variable_features"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'normal') {
+                        assessmentData.decelerations = 'normal';
+                        hideDecelSubQuestions();
+                    } else {
+                        document.getElementById('decel-repetitive-sub').classList.add('show');
+                        assessmentData.decelerations = null;
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Repetitive question
+            document.querySelectorAll('input[name="decel_repetitive"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('decel-duration-sub').classList.remove('show');
+                    document.getElementById('decel-single-duration-sub').classList.remove('show');
+                    
+                    if (this.value === 'repetitive') {
+                        document.getElementById('decel-duration-sub').classList.add('show');
+                    } else {
+                        // Check if we're dealing with variable decelerations with concerning features
+                        const variableSelected = document.querySelector('input[name="decel_type"]:checked')?.value === 'variable';
+                        const hasFeatures = document.querySelector('input[name="variable_features"]:checked')?.value === 'concerning';
+                        
+                        if (variableSelected && hasFeatures) {
+                            document.getElementById('decel-single-duration-sub').classList.add('show');
+                        } else {
+                            // For late decelerations that are not repetitive, this is normal
+                            assessmentData.decelerations = 'normal';
+                        }
+                    }
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            // Duration questions
+            document.querySelectorAll('input[name="decel_duration"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.decelerations = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+
+            document.querySelectorAll('input[name="single_duration"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    assessmentData.decelerations = this.value;
+                    updateProgress();
+                    evaluateResult();
+                });
+            });
+        }
+
+        function hideAllDecelSubQuestions() {
+            document.getElementById('decel-type-sub').classList.remove('show');
+            hideDecelSubQuestions();
+        }
+
+        function hideDecelSubQuestions() {
+            document.getElementById('decel-variable-features-sub').classList.remove('show');
+            document.getElementById('decel-repetitive-sub').classList.remove('show');
+            document.getElementById('decel-duration-sub').classList.remove('show');
+            document.getElementById('decel-single-duration-sub').classList.remove('show');
             
-            // Only show result if all 4 categories are completed
-            if (categories.size < 4) {
-                resultDiv.style.display = 'none';
+            // Reset radio buttons
+            document.querySelectorAll('input[name="decel_type"]').forEach(r => {
+                if (r.checked && r.value !== 'variable' && r.value !== 'late' && r.value !== 'abnormal') {
+                    // Keep early and prolonged selected
+                } else if (r.value === 'variable' || r.value === 'late') {
+                    // Don't uncheck these as they trigger sub-questions
+                }
+            });
+            document.querySelectorAll('input[name="variable_features"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="decel_repetitive"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="decel_duration"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="single_duration"]').forEach(r => r.checked = false);
+        }
+
+        function updateProgress() {
+            const completed = Object.values(assessmentData).filter(v => v !== null).length;
+            const total = 4;
+            const progressText = document.getElementById('progress-text');
+            
+            if (completed === total) {
+                progressText.textContent = `Assessment complete! (${completed}/${total})`;
+                progressText.style.color = '#28a745';
+            } else {
+                progressText.textContent = `Progress: ${completed}/${total} categories completed`;
+                progressText.style.color = '#2c3e50';
+            }
+        }
+
+        function evaluateResult() {
+            // Check if all categories are completed
+            const completed = Object.values(assessmentData).filter(v => v !== null).length;
+            if (completed < 4) {
+                document.getElementById('result').style.display = 'none';
                 return;
             }
 
+            let suspiciousCount = 0;
             let hasAbnormal = false;
-            let hasSuspicious = false;
 
-            checkedBoxes.forEach(checkbox => {
-                const level = checkbox.dataset.level;
-                
-                if (level === 'abnormal') {
+            // Count suspicious and abnormal findings
+            Object.values(assessmentData).forEach(value => {
+                if (value === 'suspicious') {
+                    suspiciousCount++;
+                } else if (value === 'abnormal') {
                     hasAbnormal = true;
-                } else if (level === 'suspicious') {
-                    hasSuspicious = true;
                 }
             });
 
-            // Determine result
+            // Determine classification
             let resultClass, title, description;
 
-            if (hasAbnormal) {
+            if (hasAbnormal || suspiciousCount >= 2) {
                 resultClass = 'result-abnormal';
-                title = '🔴 BẤT THƯỜNG';
-                description = 'CTG có 1 đỏ hoặc ≥ 2 vàng: Đánh giá toàn diện, bao gồm cả mẹ, hội chẩn, hồi sức, cần nhắc kích thích da đầu thai, loại trừ tai biến cấp và cân nhắc CDTK ngay';
-            } else if (hasSuspicious) {
+                title = '🔴 ABNORMAL';
+                description = 'CTG has 1 red feature OR ≥2 amber features: Comprehensive maternal and fetal assessment, consider fetal blood sampling, exclude acute events, immediate delivery should be considered';
+            } else if (suspiciousCount === 1) {
                 resultClass = 'result-suspicious';
-                title = '🟡 NGHI NGỜ';
-                description = 'CTG có 1 tiêu chí vàng: Đánh giá toàn diện, bao gồm cả mẹ, hội chẩn nếu cần, cân nhắc kích thích da đầu thai, thúc đẩy chuyển dạ/CDTK.';
+                title = '🟡 SUSPICIOUS';
+                description = 'CTG has 1 amber feature: Comprehensive maternal and fetal assessment, consider fetal blood sampling if indicated, augmentation of labour/delivery should be considered';
             } else {
                 resultClass = 'result-normal';
-                title = '⚪ BÌNH THƯỜNG';
-                description = 'CTG có 4 tiêu chí đều trắng: Tiếp tục theo dõi thường quy';
+                title = '⚪ NORMAL';
+                description = 'CTG has all 4 white features: Continue routine surveillance';
             }
 
             // Show result
+            const resultDiv = document.getElementById('result');
+            const resultTitle = document.getElementById('result-title');
+            const resultDescription = document.getElementById('result-description');
+
             resultDiv.className = `result-section ${resultClass}`;
             resultTitle.textContent = title;
             resultDescription.textContent = description;
@@ -467,10 +776,31 @@
         }
 
         function resetForm() {
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = false;
+            // Reset assessment data
+            assessmentData = {
+                contractions: null,
+                baseline: null,
+                variability: null,
+                decelerations: null
+            };
+
+            // Reset all radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
             });
-            resultDiv.style.display = 'none';
+
+            // Hide all sub-questions
+            document.querySelectorAll('.sub-question').forEach(sub => {
+                sub.classList.remove('show');
+            });
+
+            // Hide result
+            document.getElementById('result').style.display = 'none';
+
+            // Reset progress
+            updateProgress();
+
+            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
