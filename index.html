@@ -184,6 +184,12 @@
             border-color: #dc3545;
         }
 
+        .result-unclassified {
+            background: linear-gradient(135deg, #e2e3e5, #d1d3d4);
+            color: #495057;
+            border-color: #6c757d;
+        }
+
         .result-title {
             font-size: 2em;
             margin-bottom: 15px;
@@ -248,14 +254,8 @@
         <div class="header">
             <h1>🩺 CTG Classification Tool</h1>
            <p>According to <a href="https://www.nice.org.uk/guidance/ng229/chapter/Recommendations" target="_blank">NICE 2022 Guidelines</a> - Cardiotocography Classification</p>
-           <p style="margin-top: 15px; font-size: 1em; opacity: 0.95; text-align: left;">
-    <strong>•</strong> <em>According to NICE 2022 Guidelines, there are still some gaps in classification</em>, such as:<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;– Non-reassuring variable decelerations with concerning features that are non-recurrent and last < 30 minutes<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;– Recurrent non-reassuring variable decelerations without concerning features<br><br>
-
-    <strong>•</strong> <em>Before using this tool, consider whether your clinical case falls into one of these unclassified situations.</em><br><br>
-
-    This is a reference tool only. All clinical decisions must be made carefully by a qualified specialist. I take no responsibility for medical decisions made based on this tool 😊 - Dr. Mai Xuan Son.
+           <p style="margin-top: 15px; font-size: 1em; opacity: 0.95;">
+    This is a reference tool only. All clinical decisions must be made carefully by a qualified specialist. I take no responsibility for medical decisions made based on this tool - Dr. Mai Xuan Son.
 </p>
 
 
@@ -481,7 +481,7 @@
                         </div>
 
                         <div class="sub-question" id="decel-single-duration-sub">
-                            <div class="question-title">How long have these single variable decelerations with concerning features been present?</div>
+                            <div class="question-title">Duration of these single decelerations:</div>
                             <div class="radio-group">
                                 <div class="radio-item">
                                     <input type="radio" id="single_under_30" name="single_duration" value="normal">
@@ -642,8 +642,9 @@
             document.querySelectorAll('input[name="variable_features"]').forEach(radio => {
                 radio.addEventListener('change', function() {
                     if (this.value === 'normal') {
-                        assessmentData.decelerations = 'normal';
-                        hideDecelSubQuestions();
+                        // Still need to check if it's repetitive for unclassified case
+                        document.getElementById('decel-repetitive-sub').classList.add('show');
+                        assessmentData.decelerations = null;
                     } else {
                         document.getElementById('decel-repetitive-sub').classList.add('show');
                         assessmentData.decelerations = null;
@@ -659,17 +660,36 @@
                     document.getElementById('decel-duration-sub').classList.remove('show');
                     document.getElementById('decel-single-duration-sub').classList.remove('show');
                     
+                    const decelType = document.querySelector('input[name="decel_type"]:checked')?.value;
+                    
                     if (this.value === 'repetitive') {
-                        document.getElementById('decel-duration-sub').classList.add('show');
+                        // Check if this is unclassified case: recurrent variable decelerations without concerning features
+                        const variableSelected = decelType === 'variable';
+                        const noFeatures = document.querySelector('input[name="variable_features"]:checked')?.value === 'normal';
+                        
+                        if (variableSelected && noFeatures) {
+                            // This is unclassified case 2 - will be handled in checkUnclassifiedCases()
+                            assessmentData.decelerations = 'unclassified_case2';
+                        } else {
+                            document.getElementById('decel-duration-sub').classList.add('show');
+                        }
                     } else {
-                        // Check if we're dealing with variable decelerations with concerning features
-                        const variableSelected = document.querySelector('input[name="decel_type"]:checked')?.value === 'variable';
+                        // Non-repetitive decelerations
+                        const variableSelected = decelType === 'variable';
+                        const lateSelected = decelType === 'late';
                         const hasFeatures = document.querySelector('input[name="variable_features"]:checked')?.value === 'concerning';
+                        const noFeatures = document.querySelector('input[name="variable_features"]:checked')?.value === 'normal';
                         
                         if (variableSelected && hasFeatures) {
                             document.getElementById('decel-single-duration-sub').classList.add('show');
+                        } else if (variableSelected && noFeatures) {
+                            // Non-repetitive variable decelerations without concerning features = normal
+                            assessmentData.decelerations = 'normal';
+                        } else if (lateSelected) {
+                            // Non-repetitive late decelerations - need to check duration for unclassified case
+                            document.getElementById('decel-single-duration-sub').classList.add('show');
                         } else {
-                            // For late decelerations that are not repetitive, this is normal
+                            // Other cases = normal
                             assessmentData.decelerations = 'normal';
                         }
                     }
@@ -689,7 +709,15 @@
 
             document.querySelectorAll('input[name="single_duration"]').forEach(radio => {
                 radio.addEventListener('change', function() {
-                    assessmentData.decelerations = this.value;
+                    const decelType = document.querySelector('input[name="decel_type"]:checked')?.value;
+                    const decelRepetitive = document.querySelector('input[name="decel_repetitive"]:checked')?.value;
+                    
+                    // Check for late deceleration non-repetitive < 30 minutes (unclassified case)
+                    if (decelType === 'late' && decelRepetitive === 'single' && this.value === 'normal') {
+                        assessmentData.decelerations = 'unclassified_case3';
+                    } else {
+                        assessmentData.decelerations = this.value;
+                    }
                     updateProgress();
                     evaluateResult();
                 });
@@ -743,6 +771,14 @@
                 return;
             }
 
+            // Check for unclassified cases first
+            const isUnclassified = checkUnclassifiedCases();
+            if (isUnclassified) {
+                showResult('result-unclassified', '⚫ UNCLASSIFIED', 
+                    'Cannot be classified according to NICE 2022 guidelines. Decision should be based on alternative classification systems and clinical context. Requires comprehensive assessment and close monitoring.');
+                return;
+            }
+
             let suspiciousCount = 0;
             let hasAbnormal = false;
 
@@ -772,7 +808,48 @@
                 description = 'CTG has all 4 white features: Continue routine surveillance';
             }
 
-            // Show result
+            showResult(resultClass, title, description);
+        }
+
+        function checkUnclassifiedCases() {
+            // Get current selections
+            const decelType = document.querySelector('input[name="decel_type"]:checked')?.value;
+            const variableFeatures = document.querySelector('input[name="variable_features"]:checked')?.value;
+            const decelRepetitive = document.querySelector('input[name="decel_repetitive"]:checked')?.value;
+            const singleDuration = document.querySelector('input[name="single_duration"]:checked')?.value;
+
+            // Case 1: Variable decelerations with concerning features that are non-recurrent and last < 30 minutes
+            if (decelType === 'variable' && 
+                variableFeatures === 'concerning' &&
+                decelRepetitive === 'single' && 
+                singleDuration === 'normal') { // < 30 minutes = normal in single_duration
+                return true;
+            }
+
+            // Case 2: Recurrent non-reassuring variable decelerations without concerning features
+            if (decelType === 'variable' && 
+                variableFeatures === 'normal' &&
+                decelRepetitive === 'repetitive') {
+                return true;
+            }
+
+            // Case 3: Late decelerations non-repetitive < 30 minutes
+            if (decelType === 'late' && 
+                decelRepetitive === 'single' && 
+                singleDuration === 'normal') { // < 30 minutes
+                return true;
+            }
+
+            // Also check via assessmentData for cases 2 and 3
+            if (assessmentData.decelerations === 'unclassified_case2' || 
+                assessmentData.decelerations === 'unclassified_case3') {
+                return true;
+            }
+
+            return false;
+        }
+
+        function showResult(resultClass, title, description) {
             const resultDiv = document.getElementById('result');
             const resultTitle = document.getElementById('result-title');
             const resultDescription = document.getElementById('result-description');
@@ -814,5 +891,3 @@
     </script>
 </body>
 </html>
-
-
